@@ -5,6 +5,10 @@ name = "pypi"
 
 [packages]
 aiohttp = "*"
+aiopg = "*"
+redis = "*"
+sqlalchemy = "*"
+alembic = "*"
 
 [dev-packages]
 
