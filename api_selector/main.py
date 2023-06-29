@@ -1,17 +1,20 @@
 from aiohttp import web
-from permission_middleware import auth_middleware
+import aiohttp
+from middlewares import auth_middleware, urlresolver_middleware
 
 routes = web.RouteTableDef()
 
-@routes.get('/')
-async def hello(request):
-    return web.Response(text='Ello, GuvNor')
+async def handle_all_requests(request):
+    session = aiohttp.ClientSession()
+    async with session.request(method=request.method, url="http://localhost:8081/api/client/avaliable_urls") as status:
+        data = await status.text()
+        print(data)
+    await session.close()
+    return web.Response(text=data)
 
-@routes.get('/login')
-async def login(request):
-    return web.Response(text='You logined')
 
 app = web.Application()
+app.middlewares.append(urlresolver_middleware)
 app.middlewares.append(auth_middleware)
-app.add_routes(routes)
+app.router.add_route('*', '/{path_info:.*}', handle_all_requests)
 web.run_app(app)
